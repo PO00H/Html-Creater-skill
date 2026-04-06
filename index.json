@@ -1,0 +1,72 @@
+{
+  "name": "html-creater",
+  "version": "1.0.0",
+  "description": "Convert React/Next.js components with complex animations to standalone single-file HTML",
+  "commands": {
+    "convert": {
+      "description": "Convert a React/Next.js component to standalone HTML",
+      "args": [
+        {
+          "name": "source",
+          "required": true,
+          "description": "Path to source React component file"
+        },
+        {
+          "name": "output",
+          "alias": "o",
+          "default": "index-standalone.html",
+          "description": "Output filename"
+        },
+        {
+          "name": "variant",
+          "alias": "v",
+          "default": "standalone",
+          "options": ["standalone", "esm"],
+          "description": "Output variant: standalone (double-clickable) or esm (needs server)"
+        },
+        {
+          "name": "title",
+          "alias": "t",
+          "default": "Generated HTML",
+          "description": "HTML page title"
+        }
+      ]
+    },
+    "analyze": {
+      "description": "Analyze a component and report conversion requirements",
+      "args": [
+        {
+          "name": "source",
+          "required": true,
+          "description": "Path to source React component file"
+        }
+      ]
+    },
+    "template": {
+      "description": "Generate a starter template",
+      "args": [
+        {
+          "name": "name",
+          "required": true,
+          "options": ["three-fluid", "three-basic", "canvas-2d"],
+          "description": "Template name"
+        },
+        {
+          "name": "output",
+          "alias": "o",
+          "description": "Output filename"
+        }
+      ]
+    }
+  },
+  "templates": {
+    "three-fluid": "TEMPLATES/three-fluid-starter.html",
+    "three-basic": "TEMPLATES/three-basic-starter.html",
+    "canvas-2d": "TEMPLATES/canvas-2d-starter.html"
+  },
+  "defaults": {
+    "threeVersion": "0.147.0",
+    "threeVersionEsm": "0.167.1",
+    "tailwindCdn": "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"
+  }
+}

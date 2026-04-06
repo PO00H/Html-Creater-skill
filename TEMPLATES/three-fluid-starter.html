@@ -1,0 +1,129 @@
+<!--
+  HTML Creater Template: Three.js Fluid Simulation
+  Based on Navier-Stokes equations with FBO ping-pong rendering
+  Can be opened directly (double-click) - no server needed
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluid Simulation</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/three@0.147.0/build/three.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; background: #0a0a0a; }
+    #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+  (function() {
+    // ===== CONFIGURATION =====
+    var config = {
+      resolution: 0.5,        // FBO resolution multiplier
+      mouseForce: 20,         // Mouse interaction strength
+      cursorSize: 100,        // Mouse cursor influence radius
+      dt: 0.014,              // Time step
+      iterationsPoisson: 32,  // Pressure solver iterations
+      BFECC: true,            // Back and Forth Error Compensation
+      colors: ['#5227FF', '#FF9FFC', '#B19EEF']
+    };
+
+    // ===== SETUP =====
+    var canvas = document.getElementById('canvas');
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.autoClear = false;
+
+    // ===== SHADERS =====
+    // Convert template strings to array join for ES5 compatibility
+    var face_vert = [
+      'attribute vec3 position;',
+      'uniform vec2 px;',
+      'uniform vec2 boundarySpace;',
+      'varying vec2 uv;',
+      'void main(){',
+      '  vec3 pos = position;',
+      '  vec2 scale = 1.0 - boundarySpace * 2.0;',
+      '  pos.xy = pos.xy * scale;',
+      '  uv = vec2(0.5)+(pos.xy)*0.5;',
+      '  gl_Position = vec4(pos, 1.0);',
+      '}'
+    ].join('\n');
+
+    var advection_frag = [
+      'precision highp float;',
+      'uniform sampler2D velocity;',
+      'uniform float dt;',
+      'uniform vec2 fboSize;',
+      'uniform vec2 px;',
+      'varying vec2 uv;',
+      'void main(){',
+      '  vec2 ratio = max(fboSize.x, fboSize.y) / fboSize;',
+      '  vec2 vel = texture2D(velocity, uv).xy;',
+      '  vec2 uv2 = uv - vel * dt * ratio;',
+      '  vec2 newVel = texture2D(velocity, uv2).xy;',
+      '  gl_FragColor = vec4(newVel, 0.0, 0.0);',
+      '}'
+    ].join('\n');
+
+    // TODO: Add more shaders (divergence, poisson, pressure, color)
+    // See full implementation in examples/
+
+    // ===== MOUSE TRACKING =====
+    var Mouse = {
+      coords: new THREE.Vector2(),
+      coords_old: new THREE.Vector2(),
+      diff: new THREE.Vector2(),
+
+      init: function() {
+        var self = this;
+        window.addEventListener('mousemove', function(e) {
+          self.setCoords(e.clientX, e.clientY);
+        }, { passive: true });
+      },
+
+      setCoords: function(x, y) {
+        var nx = x / window.innerWidth;
+        var ny = y / window.innerHeight;
+        this.coords.set(nx * 2 - 1, -(ny * 2 - 1));
+      },
+
+      update: function() {
+        this.diff.subVectors(this.coords, this.coords_old);
+        this.coords_old.copy(this.coords);
+      }
+    };
+
+    // ===== SIMULATION CLASSES =====
+    // TODO: Implement ShaderPass base class
+    // TODO: Implement Advection, Divergence, Poisson, Pressure passes
+    // TODO: Implement Simulation class with FBO management
+
+    // ===== MAIN LOOP =====
+    function animate() {
+      requestAnimationFrame(animate);
+      Mouse.update();
+      // TODO: Run simulation steps
+      // TODO: Render to screen
+    }
+
+    // ===== RESIZE HANDLER =====
+    window.addEventListener('resize', function() {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      // TODO: Resize FBOs
+    }, { passive: true });
+
+    // ===== INITIALIZE =====
+    Mouse.init();
+    animate();
+
+  })();
+  </script>
+</body>
+</html>

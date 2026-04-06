@@ -1,0 +1,170 @@
+<!--
+  HTML Creater Template: Canvas 2D Animation
+  High-performance 2D canvas with particle system
+  Can be opened directly (double-click) - no server needed
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas 2D Animation</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { overflow: hidden; background: #0a0a0a; }
+    #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+    .overlay {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-family: sans-serif;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div class="overlay">
+    <h1 class="text-2xl font-bold">Canvas 2D Animation</h1>
+    <p class="text-sm opacity-70">Move mouse to interact</p>
+  </div>
+
+  <script>
+  (function() {
+    // ===== SETUP =====
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    // ===== CONFIGURATION =====
+    var config = {
+      particleCount: 100,
+      connectionDistance: 100,
+      mouseRadius: 150,
+      colors: ['#6366f1', '#8b5cf6', '#d946ef']
+    };
+
+    // ===== MOUSE TRACKING =====
+    var mouse = { x: null, y: null };
+
+    window.addEventListener('mousemove', function(e) {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    }, { passive: true });
+
+    window.addEventListener('mouseleave', function() {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    // ===== PARTICLE CLASS =====
+    function Particle(x, y) {
+      this.x = x;
+      this.y = y;
+      this.vx = (Math.random() - 0.5) * 2;
+      this.vy = (Math.random() - 0.5) * 2;
+      this.radius = Math.random() * 3 + 1;
+      this.color = config.colors[Math.floor(Math.random() * config.colors.length)];
+    }
+
+    Particle.prototype.update = function() {
+      // Move
+      this.x += this.vx;
+      this.y += this.vy;
+
+      // Bounce off edges
+      if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+      // Mouse interaction
+      if (mouse.x != null && mouse.y != null) {
+        var dx = mouse.x - this.x;
+        var dy = mouse.y - this.y;
+        var distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < config.mouseRadius) {
+          var force = (config.mouseRadius - distance) / config.mouseRadius;
+          this.vx -= (dx / distance) * force * 0.5;
+          this.vy -= (dy / distance) * force * 0.5;
+        }
+      }
+
+      // Speed limit
+      var speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+      if (speed > 3) {
+        this.vx = (this.vx / speed) * 3;
+        this.vy = (this.vy / speed) * 3;
+      }
+    };
+
+    Particle.prototype.draw = function() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    };
+
+    // ===== CREATE PARTICLES =====
+    var particles = [];
+    for (var i = 0; i < config.particleCount; i++) {
+      particles.push(new Particle(
+        Math.random() * canvas.width,
+        Math.random() * canvas.height
+      ));
+    }
+
+    // ===== CONNECTION LINES =====
+    function drawConnections() {
+      for (var i = 0; i < particles.length; i++) {
+        for (var j = i + 1; j < particles.length; j++) {
+          var dx = particles[i].x - particles[j].x;
+          var dy = particles[i].y - particles[j].y;
+          var distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < config.connectionDistance) {
+            var opacity = 1 - (distance / config.connectionDistance);
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(99, 102, 241, ' + (opacity * 0.3) + ')';
+            ctx.lineWidth = 1;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    // ===== ANIMATION LOOP =====
+    function animate() {
+      // Clear with fade effect
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Update and draw particles
+      for (var i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+      }
+
+      // Draw connections
+      drawConnections();
+
+      requestAnimationFrame(animate);
+    }
+
+    // Start
+    animate();
+
+  })();
+  </script>
+</body>
+</html>
