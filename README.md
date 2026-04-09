@@ -54,18 +54,19 @@ Convert React/Next.js components with complex animations (Three.js, WebGL, Canva
 ### Quick Start
 
 ```bash
-# Use the skill
-/html-creater convert <source-file>
+# Bundle entire project to single HTML
+/html-creater bundle . -o portfolio.html
 
-# Example
-/html-creater convert components/LiquidEther.tsx --output portfolio.html
+# Convert single component
+/html-creater convert components/LiquidEther.tsx -o demo.html
 ```
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `/html-creater convert <source>` | Convert React component to standalone HTML |
+| `/html-creater bundle <dir>` | **NEW**: Bundle entire project to single HTML |
+| `/html-creater convert <source>` | Convert single React component to standalone HTML |
 | `/html-creater analyze <source>` | Analyze conversion requirements |
 | `/html-creater template <name>` | Generate starter template |
 
@@ -119,17 +120,18 @@ Convert React/Next.js components with complex animations (Three.js, WebGL, Canva
 ### 快速开始
 
 ```bash
-# 使用技能
-/html-creater convert <源文件>
+# 打包整个项目为单个 HTML
+/html-creater bundle . -o portfolio.html
 
-# 示例
-/html-creater convert components/LiquidEther.tsx --output portfolio.html
+# 转换单个组件
+/html-creater convert components/LiquidEther.tsx -o demo.html
 ```
 
 ### 命令列表
 
 | 命令 | 说明 |
 |---------|-------------|
+| `/html-creater bundle <dir>` | **新增**: 将整个项目打包为单个 HTML |
 | `/html-creater convert <source>` | 将 React 组件转换为独立 HTML |
 | `/html-creater analyze <source>` | 分析转换需求 |
 | `/html-creater template <name>` | 生成起始模板 |
